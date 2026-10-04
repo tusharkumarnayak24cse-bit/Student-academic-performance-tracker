@@ -14,6 +14,55 @@ st.markdown('''<style>
 [data-testid="stSidebar"] {background:#edf1fb} .block-container{padding-top:2rem}
 .hero{background:linear-gradient(120deg,#182751,#405ac1);padding:30px;border-radius:22px;color:white;margin-bottom:22px}
 .hero h1{color:white!important;margin:0}.hero p{color:#d7e1ff;margin-bottom:0}
+
+/* Lightweight animations: settle after entry; honor reduced-motion preferences. */
+@keyframes scope-reveal {
+  from { opacity:0; transform:translateY(14px); }
+  to { opacity:1; transform:translateY(0); }
+}
+@keyframes scope-glow {
+  from { opacity:.2; transform:translateX(-30px) scale(.9); }
+  to { opacity:.55; transform:translateX(25px) scale(1.1); }
+}
+.hero { position:relative; isolation:isolate; overflow:hidden;
+  box-shadow:0 14px 36px rgba(24,39,81,.13);
+  animation:scope-reveal .65s ease-out both; }
+.hero::after {content:""; position:absolute; width:260px; height:260px;
+  right:-65px; top:-100px; border-radius:50%; z-index:-1; pointer-events:none;
+  background:radial-gradient(circle,rgba(132,194,255,.6),transparent 70%);
+  animation:scope-glow 2s ease-in-out 2 alternate; opacity:.3; }
+.hero small {display:block;letter-spacing:.18em;font-weight:600}
+.hero h1 {animation:scope-reveal .65s .08s ease-out both}
+.hero p {animation:scope-reveal .65s .16s ease-out both}
+[data-testid="stMetric"] {animation:scope-reveal .5s ease-out backwards;
+  transition:transform .22s ease,box-shadow .22s ease,border-color .22s ease;}
+[data-testid="stColumn"]:nth-child(2) [data-testid="stMetric"] {animation-delay:.08s}
+[data-testid="stColumn"]:nth-child(3) [data-testid="stMetric"] {animation-delay:.16s}
+[data-testid="stColumn"]:nth-child(4) [data-testid="stMetric"] {animation-delay:.24s}
+[data-testid="stImage"], [data-testid="stPyplot"] {animation:scope-reveal .55s ease-out both}
+.stButton button, .stDownloadButton button, [data-testid="stFormSubmitButton"] button {
+  border-radius:12px;transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease;}
+@media (hover:hover) and (pointer:fine) {
+  [data-testid="stMetric"]:hover {transform:translateY(-4px);border-color:#b5bffc;
+    box-shadow:0 12px 28px rgba(53,73,148,.12)}
+  .stButton button:hover, .stDownloadButton button:hover,
+  [data-testid="stFormSubmitButton"] button:hover {transform:translateY(-2px);
+    box-shadow:0 7px 18px rgba(53,73,148,.14);border-color:#5365d9;}
+}
+.stButton button:active, .stDownloadButton button:active {transform:scale(.98)}
+.stButton button:focus-visible, .stDownloadButton button:focus-visible {
+  outline:3px solid #8795ef;outline-offset:3px;}
+@media (max-width:640px) {
+  .hero {padding:24px 20px}.hero h1 {font-size:2rem}
+  [data-testid="stMetric"] {padding:14px}
+}
+@media (prefers-reduced-motion:reduce) {
+  .hero,.hero::after,.hero h1,.hero p,[data-testid="stMetric"],
+  [data-testid="stImage"],[data-testid="stPyplot"],.stButton button,
+  .stDownloadButton button,[data-testid="stFormSubmitButton"] button {
+    animation:none!important;transition:none!important;transform:none!important;}
+}
+
 </style>''', unsafe_allow_html=True)
 st.markdown('<div class="hero"><small>PSC • ACADEMIC ANALYTICS</small><h1>StudentScope</h1><p>Your marks. Your progress. Your next milestone.</p></div>', unsafe_allow_html=True)
 ROOT = Path(__file__).parent
@@ -208,3 +257,4 @@ elif page == 'Target planner':
     elif required <= 0: st.success('Your recorded marks already secure this combined target, even with zero in the next assessment.')
     else: st.metric('Minimum marks needed', f'{required:.2f} / {next_max:g}')
     st.caption('Assumes the selected recorded assessments and the next assessment are added directly, without university-specific weighting. If only whole marks are awarded, round the required marks up.')
+
